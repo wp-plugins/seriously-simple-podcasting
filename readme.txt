@@ -4,7 +4,7 @@ Donate link: http://www.hughlashbrooke.com/
 Tags: podcast, audio, rss, feed, itunes
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,10 @@ On the plugin's settings page you can opt to use the plugins built-in templates 
 
 == Changelog ==
 
+= 1.1.1 =
+* 2013-01-06
+* Adding file MIME type to feed RSS
+
 = 1.1 =
 * 2013-01-17
 * A lot settings for the podcast feed details have been added
@@ -66,6 +70,10 @@ On the plugin's settings page you can opt to use the plugins built-in templates 
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* 2013-01-06
+* Adding file MIME type to feed RSS
 
 = 1.1 =
 * 2013-01-17

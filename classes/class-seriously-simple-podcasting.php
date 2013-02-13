@@ -44,9 +44,9 @@ class SeriouslySimplePodcasting {
 
 			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ), 10 );
 			
-			if ( in_array( $pagenow , array( 'edit.php' , 'post-new.php' ) ) && isset( $_GET['post_type'] ) && $_GET['post_type'] == $this->token ) {
+			if ( ( in_array( $pagenow , array( 'edit.php' , 'post-new.php' ) ) && isset( $_GET['post_type'] ) && $_GET['post_type'] == $this->token )  || $pagenow = 'post.php' ) {
 				add_action( 'admin_menu', array( &$this, 'meta_box_setup' ), 20 );
-				add_action( 'save_post', array( &$this, 'meta_box_save' ) );
+				add_action( 'save_post', array( &$this, 'meta_box_save' ) );	
 				add_filter( 'enter_title_here', array( &$this, 'enter_title_here' ) );
 				add_filter( 'post_updated_messages', array( &$this, 'updated_messages' ) );
 				add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ), 10 );
@@ -248,7 +248,7 @@ class SeriouslySimplePodcasting {
 
 	public function meta_box_save( $post_id ) {
 		global $post, $messages;
-
+		
 		// Verify
 		if ( ( get_post_type() != $this->token ) || ! wp_verify_nonce( $_POST['seriouslysimple_' . $this->token . '_nonce'], plugin_basename( $this->dir ) ) ) {  
 			return $post_id;  

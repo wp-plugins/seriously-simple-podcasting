@@ -432,7 +432,12 @@ class SeriouslySimplePodcasting {
 				$size = $size['formatted'];
 			}
 
-			$meta = '<div class="' . esc_attr( 'podcast_meta' ) . '"><aside>';
+			$meta = '';
+			if( is_single() ) {
+				$meta .= $this->audio_player( $file );
+			}
+
+			$meta .= '<div class="' . esc_attr( 'podcast_meta' ) . '"><aside>';
 			if( $file && strlen( $file ) > 0 ) { $meta .= '<a href="' . esc_url( $file ) . '" title="' . get_the_title() . ' ">' . __( 'Download file' , 'ss-podcasting' ) . '</a>'; }
 			if( $duration && strlen( $duration ) > 0 ) { if( $file && strlen( $file ) > 0 ) { $meta .= ' | '; } $meta .= __( 'Duration' , 'ss-podcasting' ) . ': ' . $duration; }
 			if( $size && strlen( $size ) > 0 ) { if( ( $duration && strlen( $duration ) > 0 ) || ( $file && strlen( $file ) > 0 ) ) { $meta .= ' | '; } $meta .= __( 'Size' , 'ss-podcasting' ) . ': ' . $size; }

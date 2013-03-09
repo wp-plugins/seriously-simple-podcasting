@@ -111,7 +111,7 @@ class SeriouslySimplePodcasting {
 			'capability_type' => 'post',
 			'has_archive' => true,
 			'hierarchical' => false,
-			'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' , 'comments' ),
+			'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'comments', 'author', 'custom-fields' ),
 			'menu_position' => 5,
 			'menu_icon' => ''
 		);

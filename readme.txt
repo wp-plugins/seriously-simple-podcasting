@@ -28,10 +28,7 @@ Podcast audio files can be uploaded directly into WordPress or hosted on any oth
 
 == Upcoming Features ==
 
-Massively improved widget
-User documentation
-Improved layout of settings page
-Gather and provide listener stats
+Massively improved widget | User documentation | Improved layout of settings page | Gather and provide listener stats
 
 If you have any other feature requests, please post them on the support forum and I will do what I can to help you out.
 

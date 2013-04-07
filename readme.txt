@@ -77,6 +77,10 @@ If you would like to contribute to the code then you can fork the GitHub repo he
 
 == Changelog ==
 
+= 1.4.3 =
+* 2013-04-07
+* [UPDATE] Adding new plugin branding to WordPress admin - no new features are included in this update
+
 = 1.4.2 =
 * 2013-03-30
 * [UPDATE] Added work around for WordPress bug that causes 404 error on feed when site has no posts
@@ -186,6 +190,9 @@ If you would like to contribute to the code then you can fork the GitHub repo he
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.4.3 =
+* This update adds the new plugin branding to the WordPress admin - no new features are included.
 
 = 1.4.2 =
 * [UPDATE] Added work around for WordPress bug that causes 404 error on feed when site has no posts

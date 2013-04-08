@@ -72,7 +72,7 @@ If you would like to contribute to the code then you can fork the GitHub repo he
 
 == Screenshots ==
 
-1. The plugin settings screen within the WordPress admin (it has been slightly modified from this since v1.3).
+1. The plugin settings screen within the WordPress admin.
 2. The info that you need to add to each podcast episode.
 
 == Changelog ==

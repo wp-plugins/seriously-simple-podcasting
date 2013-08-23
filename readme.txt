@@ -43,9 +43,9 @@ Installing "Seriously Simple Podcasting" can be done either by searching for "Se
 
 == Frequently Asked Questions ==
 
-= The plguins doesn't work like it should - what's the problem? =
+= The plugin doesn't work like it should - what's the problem? =
 
-There could be a number of reasons for this, but the most common one is that you have another podcasting plugin activated on your site. Make sure you deactivate any other podcasting plugins (e.g. BluBrry PowerPress, PodPress, etc.). If you have done that and the plugin is still not working as it should then please browse the support forum and post a new topic if you cannot find an existing answer.
+There could be a number of reasons for this, but the most common one is that you have another podcasting plugin activated on your site. Make sure you deactivate any other podcasting plugins (e.g. BluBrry PowerPress, PodPress, etc.). If you have done that and the plugin is still not working as it should then have a read of the rest of the FAQs as well as the support forum - if you don't find what you need there, then create a new topic.
 
 = I've installed the plugin and added episodes, but where do I find all of it on my website? =
 

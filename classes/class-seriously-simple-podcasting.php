@@ -377,14 +377,8 @@ class SeriouslySimplePodcasting {
 	public function enqueue_admin_scripts() {
 
 		// Admin JS
-		wp_register_script( 'ss_podcasting-admin', esc_url( $this->assets_url . 'js/admin.js' ), array( 'jquery' , 'media-upload' , 'thickbox' ), '1.0.1' );
-
-		// JS & CSS for media uploader
-		wp_enqueue_script( 'jquery' );
-        wp_enqueue_script( 'thickbox' );
-        wp_enqueue_style( 'thickbox' );
-        wp_enqueue_script( 'media-upload' );
-        wp_enqueue_script( 'ss_podcasting-admin' );
+		wp_register_script( 'ss_podcasting-admin', esc_url( $this->assets_url . 'js/admin.js' ), array( 'jquery' ), '1.7.0' );
+		wp_enqueue_script( 'ss_podcasting-admin' );
 
 	}
 

@@ -813,6 +813,7 @@ class SeriouslySimplePodcasting {
 
 			if( count( $terms ) > 0) {
 				foreach ( $terms as $term ) {
+					$query[ $term->term_id ] = new stdClass();
 					$query[ $term->term_id ]->title = $term->name;
 		    		$query[ $term->term_id ]->url = get_term_link( $term );
 		    		$posts = get_posts( array(

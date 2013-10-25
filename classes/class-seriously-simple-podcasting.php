@@ -561,7 +561,9 @@ class SeriouslySimplePodcasting {
 
 		if( $file ) {
 
-			require_once( $this->assets_dir . '/getid3/getid3.php' );
+			if( ! class_exists( 'getid3' ) ) {
+				require_once( $this->assets_dir . '/getid3/getid3.php' );
+			}
 
 			$getid3 = new getid3();
 
@@ -649,7 +651,7 @@ class SeriouslySimplePodcasting {
 
 		if( $src ) {
 
-			if( $wp_version && $wp_version == '3.6' ) {
+			if( $wp_version && version_compare( $wp_version, '3.6', '>=' ) ) {
 				return wp_audio_shortcode( array( 'src' => $src ) );
 			} else {
 

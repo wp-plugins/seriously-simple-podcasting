@@ -454,7 +454,7 @@ class SeriouslySimplePodcasting {
 	public function rss_meta_tag() {
 
 		$custom_feed_url = get_option('ss_podcasting_feed_url');
-		$feed_url = trailingslashit( get_site_url() ) . '?feed=podcast';
+		$feed_url = $this->site_url . '?feed=podcast';
 		if( $custom_feed_url && strlen( $custom_feed_url ) > 0 && $custom_feed_url != '' ) {
 			$feed_url = $custom_feed_url;
 		}
@@ -468,7 +468,7 @@ class SeriouslySimplePodcasting {
 
 		$file = $this->get_enclosure( $episode );
 
-		$link = add_query_arg( array( 'podcast_episode' => $file ), $this->home_url );
+		$link = add_query_arg( array( 'podcast_episode' => $file ), $this->site_url );
 
 		return $link;
 	}
@@ -568,9 +568,8 @@ class SeriouslySimplePodcasting {
 			$getid3 = new getid3();
 
 			// Identify file by root path and not URL (required for getID3 class)
-			$site_url = trailingslashit( site_url() );
 			$site_root = trailingslashit( ABSPATH );
-			$file = str_replace( $site_url , $site_root , $file );
+			$file = str_replace( $this->site_url, $site_root, $file );
 
 			$info = $getid3->analyze( $file );
 

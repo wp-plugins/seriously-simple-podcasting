@@ -210,7 +210,7 @@ class SeriouslySimplePodcasting_Admin {
 			$data = $option;
 		}
 
-		$default_url = trailingslashit( get_site_url() ) . '?post_type=podcast';
+		$default_url = $this->site_url . '?post_type=podcast';
 
 		echo '<input id="slug" type="text" name="ss_podcasting_slug" value="' . $data . '"/>
 				<label for="slug"><span class="description">' . sprintf( __( 'Provide a custom URL slug for the podcast archive and single pages. You must re-save your %1$spermalinks%2$s after changing this setting. No matter what you put here your podcast will always be visible at %3$s.' , 'ss-podcasting' ) , '<a href="' . esc_attr( 'options-permalink.php' ) . '">' , '</a>' , '<a href="' . esc_url( $default_url ) . '">' . $default_url . '</a>' ) . '</span></label>';

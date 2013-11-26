@@ -3,8 +3,8 @@ Contributors: hlashbrooke
 Donate link: http://www.hughlashbrooke.com/donate/
 Tags: podcast, audio, rss, feed, itunes, media player
 Requires at least: 3.5
-Tested up to: 3.7
-Stable tag: 1.7.3
+Tested up to: 3.7.1
+Stable tag: 1.7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -97,6 +97,10 @@ If you would like to contribute to the code then you can fork the GitHub repo he
 2. The info that you need to add to each podcast episode.
 
 == Changelog ==
+
+= 1.7.4 =
+* 2013-11-26
+* [FIX] Fixing site URL functions
 
 = 1.7.3 =
 * 2013-10-25
@@ -290,6 +294,10 @@ If you would like to contribute to the code then you can fork the GitHub repo he
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.7.4 =
+* 2013-11-26
+* [FIX] Fixing site URL functions
 
 = 1.7.3 =
 * 2013-10-25

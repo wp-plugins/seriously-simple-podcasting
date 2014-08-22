@@ -7,7 +7,7 @@
  * Author: Hugh Lashbrooke
  * Author URI: http://www.hughlashbrooke.com
  * Requires at least: 3.5
- * Tested up to: 3.8
+ * Tested up to: 4.0
  *
  * @package WordPress
  * @subpackage SeriouslySimplePodcasting

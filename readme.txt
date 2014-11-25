@@ -16,7 +16,7 @@ Podcasting the way it's meant to be.
 
 It comes with built-in templates, widget and shortcode so you can display your podcast however you like. It also has easy subscribe links for iTunes listeners and standard RSS subscribers.
 
-*Primary Features*
+**Primary Features**
 
 - New `podcast` post type and `series` taxonomy for managing your podcast episodes
 - Customisable templates for podcast pages
@@ -27,7 +27,7 @@ It comes with built-in templates, widget and shortcode so you can display your p
 - Allows audio files to be hosted on the same site or any other server
 - Full i18n support
 
-*Some examples of the plugin in action:*
+**Some examples of the plugin in action**
 
 - [Southern Cross Church](http://www.southerncrosschurch.org/sermons/)
 - [WP Cape Town](http://www.wpcapetown.co.za/podcast/)

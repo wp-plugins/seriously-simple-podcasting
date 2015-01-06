@@ -7,7 +7,7 @@
  * Author: Hugh Lashbrooke
  * Author URI: http://www.hughlashbrooke.com/
  * Requires at least: 3.6
- * Tested up to: 4.0.1
+ * Tested up to: 4.1
  *
  * Text Domain: ss-podcasting
  * Domain Path: /lang/

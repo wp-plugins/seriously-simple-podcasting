@@ -19,7 +19,7 @@ Podcasting the way it's meant to be.
 - New `podcast` post type and `series` taxonomy for managing your podcast episodes
 - Ability to use any post type for podcast episodes
 - Highly configurable RSS feed designed for all podcast services and feed readers, including iTunes
-- Widget and shortcode for displaying podcast episodes anywhere on your site
+- Widget for displaying recent podcast episodes anywhere on your site
 - Playable episodes using the built-in WordPress media player
 - Simple settings so you can get your podcast up and running quickly
 - Allows audio files to be hosted on the same site or any other server

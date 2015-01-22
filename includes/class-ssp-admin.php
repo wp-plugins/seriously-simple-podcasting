@@ -50,7 +50,7 @@ class SSP_Admin {
 		if ( is_admin() ) {
 
 			// Episode meta box
-			add_action( 'admin_init', array( $this, 'meta_box_setup' ), 20 );
+			add_action( 'add_meta_boxes', array( $this, 'meta_box_setup' ), 20 );
 			add_action( 'save_post', array( $this, 'meta_box_save' ), 200, 1 );
 
 			// Episode edit screen
@@ -71,6 +71,7 @@ class SSP_Admin {
 
             // Dashboard widgets
             add_filter( 'dashboard_glance_items', array( $this, 'glance_items' ), 10, 1 );
+
 		}
 
 		// Flush rewrite rules on plugin activation
@@ -176,6 +177,11 @@ class SSP_Admin {
         $series_args = apply_filters( 'ssp_register_taxonomy_args', $series_args, 'series' );
 
         register_taxonomy( 'series', $podcast_post_types, $series_args );
+
+        // Add Tags to podcast post type
+        if( apply_filters( 'ssp_use_post_tags', true ) ) {
+        	register_taxonomy_for_object_type( 'post_tag', $this->token );
+        }
     }
 
     /**
@@ -318,11 +324,17 @@ class SSP_Admin {
 	 */
 	public function meta_box_setup () {
 
+		// Return early if we're on a single edit post screen.
+		$screen = get_current_screen();
+		if ( ! in_array( $screen->id, array( 'post', $this->token ) ) ) {
+			return;
+		}
+
 		add_meta_box( 'episode-data', __( 'Episode Details' , 'ss-podcasting' ), array( $this, 'meta_box_content' ), $this->token, 'normal', 'high' );
 
 		$other_post_types = get_option( 'ss_podcasting_use_post_types', array() );
-		if( count( $other_post_types ) > 0 ) {
-			foreach( (array) $other_post_types as $post_type ) {
+		if ( ! empty( $other_post_types ) ) {
+			foreach ( (array) $other_post_types as $post_type ) {
 				add_meta_box( 'podcast-episode-data', __( 'Podcast Episode Details' , 'ss-podcasting' ), array( $this, 'meta_box_content' ), $post_type, 'normal', 'high' );
 			}
 		}
@@ -388,8 +400,6 @@ class SSP_Admin {
 	public function meta_box_save( $post_id ) {
 		global $post, $messages, $ss_podcasting;
 
-
-
 		$allowed_post_types = get_option( 'ss_podcasting_use_post_types', array() );
 		$allowed_post_types[] = $this->token;
 
@@ -432,7 +442,7 @@ class SSP_Admin {
 				$val = esc_url( $val );
 			}
 
-			if( $f == 'enclosure' ) {
+			if( $k == 'enclosure' ) {
 				$enclosure = $val;
 			}
 
@@ -442,7 +452,7 @@ class SSP_Admin {
 		if( $enclosure ) {
 
 			// Get file duration
-			if ( get_post_meta( $post_id , 'duration' , true ) == '' ) {
+			if ( get_post_meta( $post_id, 'duration', true ) == '' ) {
 				$duration = $ss_podcasting->get_file_duration( $enclosure );
 				if( $duration ) {
 					update_post_meta( $post_id , 'duration' , $duration );
@@ -450,11 +460,18 @@ class SSP_Admin {
 			}
 
 			// Get file size
-			if ( get_post_meta( $post_id , 'filesize' , true ) == '' ) {
+			if ( get_post_meta( $post_id, 'filesize', true ) == '' ) {
 				$filesize = $ss_podcasting->get_file_size( $enclosure );
 				if( $filesize ) {
-					update_post_meta( $post_id , 'filesize' , $filesize['formatted'] );
-					update_post_meta( $post_id , 'filesize_raw' , $filesize['raw'] );
+
+					if( isset( $filesize['formatted'] ) ) {
+						update_post_meta( $post_id, 'filesize', $filesize['formatted'] );
+					}
+
+					if( isset( $filesize['raw'] ) ) {
+						update_post_meta( $post_id, 'filesize_raw', $filesize['raw'] );
+					}
+
 				}
 			}
 

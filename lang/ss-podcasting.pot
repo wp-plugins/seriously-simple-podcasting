@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Seriously Simple Podcasting package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Seriously Simple Podcasting 1.8.4\n"
+"Project-Id-Version: Seriously Simple Podcasting 1.8.5\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/seriously-simple-podcasting\n"
-"POT-Creation-Date: 2015-02-08 10:33:30+00:00\n"
+"POT-Creation-Date: 2015-02-09 09:49:07+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -252,18 +252,22 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/class-ssp-admin.php:571
-msgid "Write a review"
+msgid "Documentation"
 msgstr ""
 
 #: includes/class-ssp-admin.php:572
+msgid "Write a review"
+msgstr ""
+
+#: includes/class-ssp-admin.php:573
 msgid "Donate"
 msgstr ""
 
-#: includes/class-ssp-admin.php:576
+#: includes/class-ssp-admin.php:577
 msgid "Confirm compatibility"
 msgstr ""
 
-#: includes/class-ssp-admin.php:589
+#: includes/class-ssp-admin.php:590
 msgid "Enter episode title here"
 msgstr ""
 

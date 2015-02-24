@@ -39,10 +39,10 @@ class SSP_Admin {
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );
 
 		// Regsiter podcast post type and taxonomies
-		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'init', array( $this, 'register_post_type' ), 1 );
 
 		// Register podcast feed
-		add_action( 'init', array( $this, 'add_feed' ) );
+		add_action( 'init', array( $this, 'add_feed' ), 1 );
 
 		add_filter( 'wpseo_include_rss_footer', array( $this, 'hide_wp_seo_rss_footer' ) );
 
@@ -133,7 +133,7 @@ class SSP_Admin {
 			'capability_type' => 'post',
 			'has_archive' => true,
 			'hierarchical' => false,
-			'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'comments', 'author', 'custom-fields' ),
+			'supports' => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'comments', 'author', 'custom-fields', 'publicize' ),
 			'menu_position' => 5,
 			'menu_icon' => 'dashicons-microphone',
 		);

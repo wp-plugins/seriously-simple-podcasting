@@ -45,9 +45,10 @@ class SSP_Frontend {
 			add_filter( 'the_excerpt', array( $this, 'excerpt_meta_data' ), 10, 1 );
 		}
 
-		// Add SSP label and version to generaotr tags
+		// Add SSP label and version to generator tags
 		add_action( 'get_the_generator_html', array( $this, 'generator_tag' ), 10, 2 );
 		add_action( 'get_the_generator_xhtml', array( $this, 'generator_tag' ), 10, 2 );
+		add_action( 'get_the_generator_rss2', array( $this, 'generator_tag' ), 10, 2 );
 
 		// Add RSS meta tag to site header
 		add_action( 'wp_head' , array( $this, 'rss_meta_tag' ) );
@@ -487,13 +488,16 @@ class SSP_Frontend {
 	 * @return object       Episode post object
 	 */
 	public function get_episode_from_file( $file = '' ) {
+		global $post;
 
 		$episode = false;
 
 		if( $file != '' ) {
 
+			$post_types = ssp_post_types( true );
+
 			$args = array(
-				'post_type' => 'podcast',
+				'post_type' => $post_types,
 				'post_status' => 'publish',
 				'posts_per_page' => 1,
 				'meta_key' => 'audio_file',
@@ -504,7 +508,7 @@ class SSP_Frontend {
 
 			if ( $qry->have_posts() ) {
 				while ( $qry->have_posts() ) { $qry->the_post();
-					$episode = get_queried_object();
+					$episode = $post;
 					break;
 				}
 			}
@@ -528,6 +532,11 @@ class SSP_Frontend {
 
 				// Get episode object
 				$episode = $this->get_episode_from_file( $file );
+
+				// Make sure we have a valid episode object to prevent downloading of any file from the server
+				if( ! $episode || ! is_object( $episode ) || is_wp_error( $episode ) || ! isset( $episode->ID ) ) {
+					return;
+				}
 
 				// Allow other actions - functions hooked on here must not echo any data
 			    do_action( 'ssp_file_download', $file, $episode );
@@ -560,15 +569,17 @@ class SSP_Frontend {
 	 */
 	function generator_tag( $gen, $type ) {
 
-		// Allow generator tag to be hidden if necessary
-		if( apply_filters( 'ssp_show_generator_tag', true ) ) {
+		// Allow generator tags to be hidden if necessary
+		if( apply_filters( 'ssp_show_generator_tag', true, $type ) ) {
+
+			$generator = 'Seriously Simple Podcasting ' . esc_attr( $this->version );
 
 			switch ( $type ) {
 				case 'html':
-					$gen .= "\n" . '<meta name="generator" content="Seriously Simple Podcasting ' . esc_attr( $this->version ) . '">';
+					$gen .= "\n" . '<meta name="generator" content="' . $generator . '">';
 				break;
 				case 'xhtml':
-					$gen .= "\n" . '<meta name="generator" content="Seriously Simple Podcasting ' . esc_attr( $this->version ) . '" />';
+					$gen .= "\n" . '<meta name="generator" content="' . $generator . '" />';
 				break;
 			}
 

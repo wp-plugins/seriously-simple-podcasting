@@ -76,7 +76,7 @@ class SSP_Frontend {
 	 */
 	public function get_episode_download_link( $episode_id ) {
 		$file = $this->get_enclosure( $episode_id );
-		$link = add_query_arg( array( 'podcast_episode' => $file ), $this->home_url );
+		$link = add_query_arg( array( 'podcast_episode' => $episode_id ), $this->home_url );
 		return apply_filters( 'ssp_episode_download_link', $link, $episode_id, $file );
 	}
 
@@ -526,22 +526,31 @@ class SSP_Frontend {
 
 		if( is_podcast_download() ) {
 
-			$file = esc_attr( $_GET['podcast_episode'] );
+			// Get requested episode ID
+			$episode_id = esc_attr( $_GET['podcast_episode'] );
 
-			if( $file ) {
+			if( isset( $episode_id ) && $episode_id ) {
 
-				// Get episode object
-				$episode = $this->get_episode_from_file( $file );
+				// Get episode post object
+				$episode = get_post( $episode_id );
 
-				// Make sure we have a valid episode object to prevent downloading of any file from the server
+				// Make sure we have a valid episode post object
 				if( ! $episode || ! is_object( $episode ) || is_wp_error( $episode ) || ! isset( $episode->ID ) ) {
+					return;
+				}
+
+				// Get audio file for download
+				$file = $this->get_enclosure( $episode_id );
+
+				// Exit if no file is found
+				if( ! $file ) {
 					return;
 				}
 
 				// Allow other actions - functions hooked on here must not echo any data
 			    do_action( 'ssp_file_download', $file, $episode );
 
-			    // Set necessary headers
+			    // Set necessary headers for download
 				header( "Pragma: no-cache" );
 				header( "Expires: 0" );
 				header( "Cache-Control: must-revalidate, post-check=0, pre-check=0" );

@@ -4,7 +4,7 @@ Donate link: http://www.hughlashbrooke.com/donate/
 Tags: podcast, audio, rss, rss2, mp3, feed, itunes, media player, podcasting, radio, audio player, media, id3, stitcher
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.8.10
+Stable tag: 1.8.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,11 @@ You can find complete user and developer documentation (along with the FAQs) on 
 9. Podcast episodes are shown in the At a Glance dashboard widget.
 
 == Changelog ==
+
+= 1.8.11 =
+* 2015-03-05
+* [TWEAK] Improving episode download links
+* [TWEAK] Minor code reformat and optimisation
 
 = 1.8.10 =
 * 2015-02-24
@@ -377,5 +382,5 @@ You can find complete user and developer documentation (along with the FAQs) on 
 
 == Upgrade Notice ==
 
-= 1.8.10 =
-* This update contains a critical security fix - please update ASAP.
+= 1.8.11 =
+* This update fixes some issues with the episode download links not always working.

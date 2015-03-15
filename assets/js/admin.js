@@ -25,16 +25,16 @@ jQuery(document).ready(function($) {
 
 		// When an image is selected, run a callback.
 		file_frame.on( 'select', function() {
-		  attachment = file_frame.state().get('selection').first().toJSON();
+		  var attachment = file_frame.state().get('selection').first().toJSON();
 		  jQuery("#"+field_id).val(attachment.url);
-		  if( preview_media ) {
+		  if ( preview_media ) {
 		  	jQuery("#"+preview_id).attr('src',attachment.url);
 		  }
 		});
 
 		// Finally, open the modal
 		file_frame.open();
-	}
+	};
 
 	/* ADD/EDIT EPISODE */
 
@@ -43,7 +43,32 @@ jQuery(document).ready(function($) {
 		jQuery.fn.ssp_upload_media_file( jQuery(this), false );
 	});
 
+	/* DATEPICKER */
+
+	jQuery('.ssp-datepicker').datepicker({
+		changeMonth: true,
+      	changeYear: true,
+      	showAnim: 'slideDown',
+      	dateFormat: 'dd-mm-yy'
+	});
+
 	/* SETTINGS PAGE */
+
+	jQuery('#feed-series-toggle').click(function(e) {
+
+		if ( jQuery(this).hasClass( 'series-open' ) ) {
+			jQuery('#feed-series-list').slideUp('fast');
+			jQuery(this).removeClass( 'series-open' );
+			jQuery(this).addClass( 'series-closed' );
+
+		} else if ( jQuery(this).hasClass( 'series-closed' ) ) {
+			jQuery('#feed-series-list').slideDown('fast');
+			jQuery(this).removeClass( 'series-closed' );
+			jQuery(this).addClass( 'series-open' );
+
+		}
+
+	});
 
 	jQuery('#ss_podcasting_data_image_button').click(function() {
 		jQuery.fn.ssp_upload_media_file( jQuery(this), true );

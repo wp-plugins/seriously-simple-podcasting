@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Seriously Simple Podcasting
- * Version: 1.8.11
+ * Version: 1.9
  * Plugin URI: https://wordpress.org/plugins/seriously-simple-podcasting/
  * Description: Podcasting the way it's meant to be.
  * Author: Hugh Lashbrooke
@@ -13,17 +13,20 @@
  * Domain Path: /lang/
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 require_once( 'includes/ssp-functions.php' );
 require_once( 'includes/class-ssp-admin.php' );
 require_once( 'includes/class-ssp-frontend.php' );
 
 global $ssp_admin, $ss_podcasting;
-$ssp_admin = new SSP_Admin( __FILE__ );
-$ss_podcasting = new SSP_Frontend( __FILE__, '1.8.11' );
+$ssp_admin = new SSP_Admin( __FILE__, '1.9.0' );
+$ss_podcasting = new SSP_Frontend( __FILE__, '1.9.0' );
 
-if( is_admin() ) {
+if ( is_admin() ) {
 	global $ssp_settings;
 	require_once( 'includes/class-ssp-settings.php' );
 	$ssp_settings = new SSP_Settings( __FILE__ );

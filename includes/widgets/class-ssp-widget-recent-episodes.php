@@ -1,5 +1,9 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Seriously Simple Podcasting Recent Podcast Episodes Widget
@@ -17,13 +21,12 @@ class SSP_Widget_Recent_Episodes extends WP_Widget {
 
 	/**
 	 * Constructor function.
-	 * @since  1.0.0
-	 * @return  void
+	 * @since  1.8.0
 	 */
 	public function __construct() {
 		/* Widget variable settings. */
 		$this->widget_cssclass = 'widget_recent_entries widget_recent_episodes';
-		$this->widget_description = __( 'Display a list of your most recent podcastepisodes.', 'ss-podcasting' );
+		$this->widget_description = __( 'Display a list of your most recent podcast episodes.', 'ss-podcasting' );
 		$this->widget_idbase = 'ss_podcast';
 		$this->widget_title = __( 'Podcast: Recent Episodes', 'ss-podcasting' );
 
@@ -73,7 +76,7 @@ class SSP_Widget_Recent_Episodes extends WP_Widget {
 
 		$show_date = isset( $instance['show_date'] ) ? $instance['show_date'] : false;
 
-		$query_args = ssp_episodes( $number, '', true, 'feed' );
+		$query_args = ssp_episodes( $number, '', true, 'widget' );
 
 		$qry = new WP_Query( apply_filters( 'ssp_widget_recent_episodes_args', $query_args ) );
 

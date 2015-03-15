@@ -1,5 +1,9 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Main plugin class
@@ -10,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
  * @since       1.0
  */
 class SSP_Admin {
+	private $version;
 	private $dir;
 	private $file;
 	private $assets_dir;
@@ -17,13 +22,16 @@ class SSP_Admin {
 	private $template_path;
 	private $token;
 	private $home_url;
+	private $script_suffix;
 
 	/**
 	 * Constructor
 	 * @param 	string $file Plugin base file
-	 * @return 	void
 	 */
-	public function __construct( $file ) {
+	public function __construct( $file, $version ) {
+
+		$this->version = $version;
+
 		$this->dir = dirname( $file );
 		$this->file = $file;
 		$this->assets_dir = trailingslashit( $this->dir ) . 'assets';
@@ -46,8 +54,11 @@ class SSP_Admin {
 
 		add_filter( 'wpseo_include_rss_footer', array( $this, 'hide_wp_seo_rss_footer' ) );
 
-		// Handle v1.x feed URL
+		// Handle v1.x feed URL as well as feed URLs for default permalinks
 		add_action( 'init', array( $this, 'redirect_old_feed' ) );
+
+		// Setup custom permalink structures
+		add_action( 'init', array( $this, 'setup_permastruct' ), 10 );
 
 		if ( is_admin() ) {
 
@@ -81,18 +92,27 @@ class SSP_Admin {
 
 		}
 
-		// Flush rewrite rules on plugin activation
-		register_activation_hook( $file, array( $this, 'rewrite_flush' ) );
+		// Setup activation and deactivation hooks
+		register_activation_hook( $file, array( $this, 'activate' ) );
+		register_deactivation_hook( $file, array( $this, 'deactivate' ) );
+
+		add_action( 'init', array( $this, 'update' ), 11 );
 	}
 
 	/**
-	 * Flush reqrite rules on plugin acivation
+	 * Setup custom permalink structures
 	 * @return void
 	 */
-	public function rewrite_flush() {
-		$this->register_post_type();
-		$this->add_feed();
-		flush_rewrite_rules();
+	public function setup_permastruct() {
+
+		// Episode download links
+		add_rewrite_rule( '^podcast-download/([^/]*)/([^/]*)/?', 'index.php?podcast_episode=$matches[1]', 'top' );
+		add_rewrite_tag( '%podcast_episode%', '([^&]+)' );
+
+		// Series feed URLs
+		$feed_slug = apply_filters( 'ssp_feed_slug', $this->token );
+		add_rewrite_rule( '^feed/' . $feed_slug . '/([^/]*)/?', 'index.php?feed=podcast&podcast_series=$matches[1]', 'top' );
+		add_rewrite_tag( '%podcast_series%', '([^&]+)' );
 	}
 
 	/**
@@ -185,7 +205,7 @@ class SSP_Admin {
         register_taxonomy( 'series', $podcast_post_types, $series_args );
 
         // Add Tags to podcast post type
-        if( apply_filters( 'ssp_use_post_tags', true ) ) {
+        if ( apply_filters( 'ssp_use_post_tags', true ) ) {
         	register_taxonomy_for_object_type( 'post_tag', $this->token );
         }
     }
@@ -208,8 +228,8 @@ class SSP_Admin {
 		}
 		$defaults = array_merge( $defaults, $new_columns );
 
-		if ( $last_item != '' ) {
-			foreach ( $last_item as $k => $v ) {
+		if ( $last_item ) {
+			foreach ( (array) $last_item as $k => $v ) {
 				$defaults[$k] = $v;
 				break;
 			}
@@ -225,9 +245,7 @@ class SSP_Admin {
      * @return void
      */
 	public function register_custom_columns( $column_name, $id ) {
-		global $wpdb, $post, $ss_podcasting;
-
-		$meta = get_post_custom( $id );
+		global $ss_podcasting;
 
 		switch ( $column_name ) {
 
@@ -237,8 +255,8 @@ class SSP_Admin {
 				$terms = wp_get_post_terms( $id , 'series' );
 
 				$i = 0;
-				foreach( $terms as $term ) {
-					if( $i > 0 ) { $value .= ', '; }
+				foreach ( $terms as $term ) {
+					if ( $i > 0 ) { $value .= ', '; }
 					else { ++$i; }
 					$value .= $term->name;
 				}
@@ -247,10 +265,7 @@ class SSP_Admin {
 			break;
 
 			case 'image':
-				$value = '';
-
 				$value = $ss_podcasting->get_image( $id, 40 );
-
 				echo $value;
 			break;
 
@@ -262,8 +277,8 @@ class SSP_Admin {
 
 	/**
 	 * Register solumns for series list table
-	 * @param  array $defaults Default columns
-	 * @return array           Modified columns
+	 * @param  array $columns Default columns
+	 * @return array          Modified columns
 	 */
 	public function edit_series_columns( $columns ) {
 
@@ -290,7 +305,14 @@ class SSP_Admin {
             case 'series_feed_url':
             	$series = get_term( $term_id, 'series' );
             	$series_slug = $series->slug;
-            	$feed_url = $this->home_url . 'feed/' . $this->token . '/?podcast_series=' . $series_slug;
+
+            	if ( get_option( 'permalink_structure' ) ) {
+					$feed_slug = apply_filters( 'ssp_feed_slug', $this->token );
+					$feed_url = $this->home_url . 'feed/' . $feed_slug . '/' . $series_slug;
+				} else {
+					$feed_url = $this->home_url . '?feed=' . $this->token . '&podcast_series=' . $series_slug;
+				}
+
                 $column_data = '<a href="' . $feed_url . '" target="_blank">' . $feed_url . '</a>';
             break;
         }
@@ -373,20 +395,29 @@ class SSP_Admin {
 			foreach ( $field_data as $k => $v ) {
 				$data = $v['default'];
 				$saved = get_post_meta( $post_id, $k, true );
-				if( $saved ) {
+				if ( $saved ) {
 					$data = $saved;
 				}
 
-				if( $k == 'audio_file' ) {
+				$class = '';
+				if ( isset( $v['class'] ) ) {
+					$class = $v['class'];
+				}
+
+				if ( $k == 'audio_file' ) {
 					$html .= '<tr valign="top"><th scope="row"><label for="' . esc_attr( $k ) . '">' . $v['name'] . '</label></th><td><input type="button" class="button" id="upload_audio_file_button" value="'. __( 'Upload File' , 'ss-podcasting' ) . '" data-uploader_title="Choose a file" data-uploader_button_text="Insert audio file" /><input name="' . esc_attr( $k ) . '" type="text" id="upload_audio_file" class="regular-text" value="' . esc_attr( $data ) . '" />' . "\n";
 					$html .= '<p class="description">' . $v['description'] . '</p>' . "\n";
 					$html .= '</td><tr/>' . "\n";
 				} else {
-					if( $v['type'] == 'checkbox' ) {
-						$html .= '<tr valign="top"><th scope="row">' . $v['name'] . '</th><td><input name="' . esc_attr( $k ) . '" type="checkbox" id="' . esc_attr( $k ) . '" ' . checked( 'on' , $data , false ) . ' /> <label for="' . esc_attr( $k ) . '"><span class="description">' . $v['description'] . '</span></label>' . "\n";
+					if ( $v['type'] == 'checkbox' ) {
+						$html .= '<tr valign="top"><th scope="row">' . $v['name'] . '</th><td><input name="' . esc_attr( $k ) . '" type="checkbox" class="' . esc_attr( $class ) . '" id="' . esc_attr( $k ) . '" ' . checked( 'on' , $data , false ) . ' /> <label for="' . esc_attr( $k ) . '"><span class="description">' . $v['description'] . '</span></label>' . "\n";
+						$html .= '</td><tr/>' . "\n";
+					} elseif ( $v['type'] == 'datepicker' ) {
+						$html .= '<tr valign="top"><th scope="row"><label for="' . esc_attr( $k ) . '">' . $v['name'] . '</label></th><td class="hasDatepicker"><input name="' . esc_attr( $k ) . '" type="text" id="' . esc_attr( $k ) . '" class="ssp-datepicker ' . esc_attr( $class ) . '" value="' . esc_attr( $data ) . '" />' . "\n";
+						$html .= '<p class="description">' . $v['description'] . '</p>' . "\n";
 						$html .= '</td><tr/>' . "\n";
 					} else {
-						$html .= '<tr valign="top"><th scope="row"><label for="' . esc_attr( $k ) . '">' . $v['name'] . '</label></th><td><input name="' . esc_attr( $k ) . '" type="text" id="' . esc_attr( $k ) . '" class="regular-text" value="' . esc_attr( $data ) . '" />' . "\n";
+						$html .= '<tr valign="top"><th scope="row"><label for="' . esc_attr( $k ) . '">' . $v['name'] . '</label></th><td><input name="' . esc_attr( $k ) . '" type="text" id="' . esc_attr( $k ) . '" class="' . esc_attr( $class ) . '" value="' . esc_attr( $data ) . '" />' . "\n";
 						$html .= '<p class="description">' . $v['description'] . '</p>' . "\n";
 						$html .= '</td><tr/>' . "\n";
 					}
@@ -406,7 +437,7 @@ class SSP_Admin {
 	 * @return void
 	 */
 	public function meta_box_save( $post_id ) {
-		global $post, $ss_podcasting;
+		global $ss_podcasting;
 
 		$podcast_post_types = ssp_post_types( true );
 
@@ -432,13 +463,12 @@ class SSP_Admin {
 		}
 
 		$field_data = $this->custom_fields();
-		$fields = array_keys( $field_data );
 		$enclosure = '';
 
 		foreach ( $field_data as $k => $field ) {
 
 			$val = '';
-			if( isset( $_POST[ $k ] ) ) {
+			if ( isset( $_POST[ $k ] ) ) {
 				$val = strip_tags( trim( $_POST[ $k ] ) );
 			}
 
@@ -447,19 +477,19 @@ class SSP_Admin {
 				$val = esc_url( $val );
 			}
 
-			if( $k == 'audio_file' ) {
+			if ( $k == 'audio_file' ) {
 				$enclosure = $val;
 			}
 
 			update_post_meta( $post_id, $k, $val );
 		}
 
-		if( $enclosure ) {
+		if ( $enclosure ) {
 
 			// Get file duration
 			if ( get_post_meta( $post_id, 'duration', true ) == '' ) {
 				$duration = $ss_podcasting->get_file_duration( $enclosure );
-				if( $duration ) {
+				if ( $duration ) {
 					update_post_meta( $post_id , 'duration' , $duration );
 				}
 			}
@@ -467,13 +497,13 @@ class SSP_Admin {
 			// Get file size
 			if ( get_post_meta( $post_id, 'filesize', true ) == '' ) {
 				$filesize = $ss_podcasting->get_file_size( $enclosure );
-				if( $filesize ) {
+				if ( $filesize ) {
 
-					if( isset( $filesize['formatted'] ) ) {
+					if ( isset( $filesize['formatted'] ) ) {
 						update_post_meta( $post_id, 'filesize', $filesize['formatted'] );
 					}
 
-					if( isset( $filesize['raw'] ) ) {
+					if ( isset( $filesize['raw'] ) ) {
 						update_post_meta( $post_id, 'filesize_raw', $filesize['raw'] );
 					}
 
@@ -499,23 +529,31 @@ class SSP_Admin {
 		    'description' => __( 'Upload the primary podcast audio file. If the file is hosted on another server simply paste the URL here.' , 'ss-podcasting' ),
 		    'type' => 'url',
 		    'default' => '',
-		    'section' => 'info'
+		    'section' => 'info',
 		);
 
 		$fields['duration'] = array(
 		    'name' => __( 'Duration:' , 'ss-podcasting' ),
-		    'description' => __( 'Duration of audio file as it will be displayed on the site - will be calculated automatically if possible.' , 'ss-podcasting' ),
+		    'description' => __( 'Duration of audio file for display (calculated automatically if possible).' , 'ss-podcasting' ),
 		    'type' => 'text',
 		    'default' => '',
-		    'section' => 'info'
+		    'section' => 'info',
 		);
 
 		$fields['filesize'] = array(
 		    'name' => __( 'File size:' , 'ss-podcasting' ),
-		    'description' => __( 'Size of the audio file as it will be displayed on the site - will be calculated automatically if possible.' , 'ss-podcasting' ),
+		    'description' => __( 'Size of the audio file for display (calculated automatically if possible).' , 'ss-podcasting' ),
 		    'type' => 'text',
 		    'default' => '',
-		    'section' => 'info'
+		    'section' => 'info',
+		);
+
+		$fields['date_recorded'] = array(
+		    'name' => __( 'Date recorded:' , 'ss-podcasting' ),
+		    'description' => __( 'The date on which this episode was recorded.' , 'ss-podcasting' ),
+		    'type' => 'datepicker',
+		    'default' => '',
+		    'section' => 'info',
 		);
 
 		$fields['explicit'] = array(
@@ -523,7 +561,7 @@ class SSP_Admin {
 		    'description' => __( 'Mark this episode as explicit.' , 'ss-podcasting' ),
 		    'type' => 'checkbox',
 		    'default' => '',
-		    'section' => 'info'
+		    'section' => 'info',
 		);
 
 		$fields['block'] = array(
@@ -531,7 +569,7 @@ class SSP_Admin {
 		    'description' => __( 'Block this episode from appearing in iTunes.' , 'ss-podcasting' ),
 		    'type' => 'checkbox',
 		    'default' => '',
-		    'section' => 'info'
+		    'section' => 'info',
 		);
 
 		return apply_filters( 'ssp_episode_fields', $fields );
@@ -570,7 +608,7 @@ class SSP_Admin {
 	 */
 	public function plugin_row_meta ( $plugin_meta = array(), $plugin_file = '', $plugin_data = array(), $status = '' ) {
 
-		if( ! isset( $plugin_data['slug'] ) || 'seriously-simple-podcasting' != $plugin_data['slug'] ) {
+		if ( ! isset( $plugin_data['slug'] ) || 'seriously-simple-podcasting' != $plugin_data['slug'] ) {
 			return $plugin_meta;
 		}
 
@@ -580,7 +618,7 @@ class SSP_Admin {
 		$plugin_meta['review'] = '<a href="https://wordpress.org/support/view/plugin-reviews/' . $plugin_data['slug'] . '?rate=5#postform" target="_blank">' . __( 'Write a review', 'ss-podcasting' ) . '</a>';
 		$plugin_meta['donate'] = '<a href="' . esc_url( $donate_link ) . '" target="_blank">' . __( 'Donate', 'ss-podcasting' ) . '</a>';
 
-		if( isset( $plugin_data['Version'] ) ) {
+		if ( isset( $plugin_data['Version'] ) ) {
 			global $wp_version;
 			$plugin_meta['compatibility'] = '<a href="https://wordpress.org/plugins/' . $plugin_data['slug'] . '/?compatibility%5Bversion%5D=' . $wp_version . '&compatibility%5Btopic_version%5D=' . $plugin_data['Version'] . '&compatibility%5Bcompatible%5D=1" target="_blank">' . __( 'Confirm compatibility', 'ss-podcasting' ) . '</a>';
 		}
@@ -605,8 +643,11 @@ class SSP_Admin {
 	 * @return void
 	 */
 	public function enqueue_admin_styles() {
-		wp_register_style( 'ss_podcasting-admin', esc_url( $this->assets_url . 'css/admin.css' ), array(), '1.8.0' );
-		wp_enqueue_style( 'ss_podcasting-admin' );
+		wp_register_style( 'ssp-admin', esc_url( $this->assets_url . 'css/admin.css' ), array(), $this->version );
+		wp_enqueue_style( 'ssp-admin' );
+
+		// Datepicker
+		wp_enqueue_style( 'jquery-ui-datepicker', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' );
 	}
 
 	/**
@@ -614,8 +655,8 @@ class SSP_Admin {
 	 * @return void
 	 */
 	public function enqueue_admin_scripts() {
-		wp_register_script( 'ss_podcasting-admin', esc_url( $this->assets_url . 'js/admin' . $this->script_suffix . '.js' ), array( 'jquery' ), '1.8.0' );
-		wp_enqueue_script( 'ss_podcasting-admin' );
+		wp_register_script( 'ssp-admin', esc_url( $this->assets_url . 'js/admin' . $this->script_suffix . '.js' ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-datepicker' ), $this->version );
+		wp_enqueue_script( 'ssp-admin' );
 	}
 
 	/**
@@ -646,7 +687,7 @@ class SSP_Admin {
 	    $locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
 	    load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
-	    load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( $this->file ) ) . '/lang/' );
+	    load_plugin_textdomain( $domain, false, dirname( plugin_basename( $this->file ) ) . '/lang/' );
 	}
 
     /**
@@ -666,7 +707,7 @@ class SSP_Admin {
 	 */
 	public function hide_wp_seo_rss_footer ( $include_footer = true ) {
 
-		if( is_feed( 'podcast' ) ) {
+		if ( is_feed( 'podcast' ) ) {
 			$include_footer = false;
 		}
 
@@ -692,7 +733,7 @@ class SSP_Admin {
 		do_action( 'ssp_before_feed' );
 
     	// Load user feed template if it exists, otherwise use plugin template
-    	if( file_exists( $user_template_file ) ) {
+    	if ( file_exists( $user_template_file ) ) {
     		require( $user_template_file );
     	} else {
     		require( $this->template_path . $file_name );
@@ -707,10 +748,48 @@ class SSP_Admin {
 	 * @return void
 	 */
 	public function redirect_old_feed() {
-		if( isset( $_GET['feed'] ) && in_array( $_GET['feed'], array( 'podcast', 'itunes' ) ) ) {
+		if ( isset( $_GET['feed'] ) && in_array( $_GET['feed'], array( 'podcast', 'itunes' ) ) ) {
 			$this->feed_template();
 			exit;
 		}
+	}
+
+	/**
+	 * Flush rewrite rules on plugin acivation
+	 * @return void
+	 */
+	public function activate() {
+
+		// Setup all custom URL rules
+		$this->register_post_type();
+		$this->add_feed();
+		$this->setup_permastruct();
+
+		// Flush permalinks
+		flush_rewrite_rules( true );
+	}
+
+	/**
+	 * Flush rewrite rules on plugin deacivation
+	 * @return void
+	 */
+	public function deactivate() {
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Run functions on plugin update/activation
+	 * @return void
+	 */
+	public function update () {
+
+		$previous_version = get_option( 'ssp_version', '1.0' );
+
+		if ( version_compare( $previous_version, '1.9.0', '<' ) ) {
+			flush_rewrite_rules();
+		}
+
+		update_option( 'ssp_version', $this->version );
 	}
 
 	/**
@@ -720,14 +799,14 @@ class SSP_Admin {
 	public function update_enclosures () {
 
 		// Allow forced re-run of update if necessary
-		if( isset( $_GET['ssp_update_enclosures'] ) ) {
+		if ( isset( $_GET['ssp_update_enclosures'] ) ) {
 			delete_option( 'ssp_update_enclosures' );
 		}
 
 		// Check if update has been run
 		$update_run = get_option( 'ssp_update_enclosures', false );
 
-		if( $update_run ) {
+		if ( $update_run ) {
 			return;
 		}
 
@@ -748,18 +827,18 @@ class SSP_Admin {
 
 		$posts_with_enclosures = get_posts( $args );
 
-		if( 0 == count( $posts_with_enclosures ) ) {
+		if ( 0 == count( $posts_with_enclosures ) ) {
 			return;
 		}
 
-		// Add 'audio_file' meta field to all posts with enclosures
-		foreach( (array) $posts_with_enclosures as $post_id ) {
+		// Add `audio_file` meta field to all posts with enclosures
+		foreach ( (array) $posts_with_enclosures as $post_id ) {
 
 			// Get existing enclosure
 			$enclosure = get_post_meta( $post_id, 'enclosure', true );
 
 			// Add audio_file field
-			if( $enclosure ) {
+			if ( $enclosure ) {
 				update_post_meta( $post_id, 'audio_file', $enclosure );
 			}
 

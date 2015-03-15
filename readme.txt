@@ -8,7 +8,7 @@ Stable tag: 1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Podcasting the way it's meant to be. Supports multiple podcast shows, all post types
+Podcasting the way it's meant to be.
 
 == Description ==
 
@@ -81,7 +81,7 @@ You can find complete user and developer documentation (along with the FAQs) on 
 == Changelog ==
 
 = 1.9 =
-* 2015-03-16
+* 2015-03-15
 * [NEW] Adding ability to supply different feed details for each series so you can run multiple podcasts from one site
 * [NEW] Adding 'Series' widget for displaying a list of episodes from a selected series
 * [NEW] Adding 'Single Episode' widget for displaying single podcast episode

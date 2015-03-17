@@ -621,15 +621,20 @@ class SSP_Frontend {
 					return;
 				}
 
+				// Get file referrer
+				$referrer = '';
+				if( isset( $_GET['ref'] ) ) {
+					$referrer = esc_attr( $_GET['ref'] );
+				}
+
 				// Allow other actions - functions hooked on here must not output any data
-			    do_action( 'ssp_file_download', $file, $episode );
+			    do_action( 'ssp_file_download', $file, $episode, $referrer );
 
 			    // Set necessary headers for download
 				header( "Pragma: no-cache" );
 				header( "Expires: 0" );
 				header( "Cache-Control: must-revalidate, post-check=0, pre-check=0" );
 				header( "Robots: none" );
-				header( "Content-Type: application/force-download" );
 				header( "Content-Description: File Transfer" );
 				header( "Content-Disposition: attachment; filename=\"" . basename( $file ) . "\";" );
 				header( "Content-Transfer-Encoding: binary" );
@@ -639,8 +644,19 @@ class SSP_Frontend {
 		        	header( "Content-Length: " . $size );
 		        }
 
-		        // Use ssp_readfile_chunked() if allowed on the server or simply access file directly
-				@ssp_readfile_chunked( "$file" ) or header( 'Location: ' . $file );
+		        // Check file referrer
+		        if( 'download' == $referrer ) {
+
+		        	// Force file download
+		        	header( "Content-Type: application/force-download" );
+
+			        // Use ssp_readfile_chunked() if allowed on the server or simply access file directly
+					@ssp_readfile_chunked( "$file" ) or header( 'Location: ' . $file );
+
+				} else {
+					// For all other referrers simply access the file directly
+					header( 'Location: ' . $file );
+				}
 
 			}
 		}

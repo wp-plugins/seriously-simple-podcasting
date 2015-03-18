@@ -131,9 +131,11 @@ class SSP_Frontend {
 
 		if ( in_array( $post->post_type, $podcast_post_types ) && ! is_feed() && ! isset( $_GET['feed'] ) ) {
 
+			// Get episode meta data
 			$meta = $this->episode_meta( $post->ID, 'content' );
 
-			$player_position = get_option( 'ssp_player_content_location', 'above' );
+			// Get specified player position
+			$player_position = get_option( 'ss_podcasting_player_content_location', 'above' );
 
 			switch( $player_position ) {
 				case 'above': $content = $meta . $content; break;

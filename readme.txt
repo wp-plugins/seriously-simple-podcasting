@@ -4,11 +4,11 @@ Donate link: http://www.hughlashbrooke.com/donate/
 Tags: podcast, audio, rss, rss2, m4a, mp3, feed, itunes, media player, podcasting, radio, audio player, media, id3, stitcher, show, shows, series, simple, docs, documentation
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Podcasting the way it's meant to be.
+Podcasting the way it's meant to be. No mess, no fuss - just you and your content taking over the world.
 
 == Description ==
 
@@ -79,6 +79,10 @@ You can find complete user and developer documentation (along with the FAQs) on 
 12. Podcast series widget
 
 == Changelog ==
+
+= 1.9.3 =
+* 2015-03-18
+* [FIX] Fixing 'Audio player position' option to make sure the selected positioning works in all cases
 
 = 1.9.2 =
 * 2015-03-17
@@ -408,5 +412,5 @@ You can find complete user and developer documentation (along with the FAQs) on 
 
 == Upgrade Notice ==
 
-= 1.9.2 =
+= 1.9.3 =
 * v1.9 adds a number of useful new features, including the ability to customise each series' RSS feed as well as additional widgets and a shortcode.

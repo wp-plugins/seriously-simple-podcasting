@@ -127,6 +127,10 @@ class SSP_Frontend {
 			return $content;
 		}
 
+		if( post_password_required( $post->ID ) ) {
+			return $content;
+		}
+
 		$podcast_post_types = ssp_post_types( true );
 
 		if ( in_array( $post->post_type, $podcast_post_types ) && ! is_feed() && ! isset( $_GET['feed'] ) ) {
@@ -154,6 +158,10 @@ class SSP_Frontend {
 	 */
 	public function excerpt_meta_data( $excerpt = '' ) {
 		global $post;
+
+		if( post_password_required( $post->ID ) ) {
+			return $excerpt;
+		}
 
 		$podcast_post_types = ssp_post_types( true );
 
